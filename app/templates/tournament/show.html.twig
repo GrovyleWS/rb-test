@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h1>Турнир: {{ tournament.name }}</h1>
+<br>
+<h2>Команды в турнире:</h2>
+<br>
+{% for team in tournament.teams %}
+    <span>{{ team.name }} </span>
+{% endfor %}
+
+<h1>Расписание:</h1>
+<br>
+{% for day, dayGames in games %}
+    <h4>{{ day|date('d F') }}</h4>
+    {% for game in dayGames%}
+    <span>{{ game.leftTeam.name }} - {{ game.rightTeam.name }}</span>
+    <br>
+        {% endfor %}
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,15 @@
+<h2>Список команд: </h2>
+<br>
+{% if teams|length is same as 0 %}
+    <h2>Нет команд</h2>
+    <br>
+{% endif %}
+{% for team in teams %}
+    <span>{{ team.name }}</span>
+    <form method="post" action="{{ path('teams_delete', {id: team.id}) }}" style="display: inline-block">
+        <input type="hidden" name="_method" value="DELETE">
+        <button>Удалить</button>
+    </form>
+    <br>
+{% endfor %}
+<a href="{{ path('teams_create') }}"><button>Создать команду</button></a>

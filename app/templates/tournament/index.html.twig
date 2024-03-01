@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    {% if tournaments|length is same as 0 %}
+        <h2>Нет турниров</h2>
+    {% else %}
+    <h2>Список турниров: </h2>
+    {% endif %}
+    <br>
+    {% for tournament in tournaments %}
+        <span>{{ tournament.name }}</span>
+
+        <button><a style="text-decoration: none; color: black" href="{{ path('tournaments_show', {slug: tournament.slug}) }}">Информация</a></button>
+        <button><a style="text-decoration: none; color: black" href="{{ path('tournaments_edit', {slug: tournament.slug}) }}">Изменить</a></button>
+        <form method="post" action="{{ path('tournaments_delete', {slug: tournament.slug}) }}"
+              style="display: inline-block">
+            <input type="hidden" name="_method" value="DELETE">
+            <button>Удалить</button>
+        </form>
+        <br>
+    {% endfor %}
+    <br>
+    <a href="{{ path('tournaments_create') }}">
+        <button>Создать турнир</button>
+    </a>
+{% endblock %}

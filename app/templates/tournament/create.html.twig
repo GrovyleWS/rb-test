@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    {% for message in app.session.flashbag.get('error') %}
+        <div>
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% if tournament is defined %}
+        <h2>Изменение турнира</h2>
+        <form method="post" action="{{ path('tournaments_update', {slug: tournament.slug}) }}">
+        <input type="hidden" name="_method" value="PUT">
+        {% else %}
+        <h2>Создание турнира</h2>
+        <form method="post" action="{{ path('tournaments_store') }}">
+    {% endif %}
+    <label>Имя: <input type="text" name="name" {% if tournament is defined %}value="{{ tournament.name }}" {% endif %}></label>
+    <button type="submit">{% if tournament is defined %}Сохранить изменения{% else %}Создать турнир{% endif %}</button>
+    <h5>Команды в турнире:</h5>
+    <div id="teams">
+        {% for team in teams %}
+            <div>
+                <input type="text" id="team_{{ team.id }}_name" value="{{ team.name }}" disabled>
+                <input type="hidden" id="tournament_team_{{ team.id }}" name="tournament_teams[]" value="{{ team.id }}"
+                       readonly>
+                <button type="button" onclick="deleteTeam(event)">Удалить</button>
+                <br>
+            </div>
+        {% endfor %}
+    </div>
+</form>
+    <h3>Добавление команд: </h3>
+    <div>
+        <select id="additional_teams">
+            <option disabled selected value>Выберите команду</option>
+            {% if additionalTeams is defined %}
+                {% for additionalTeam in additionalTeams %}
+                    <option value="{{ additionalTeam.id }}">{{ additionalTeam.name }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+        <button type="button" onclick="addTeam(event)">Добавить</button>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        function deleteTeam(event) {
+            let teamInput = event.target.previousElementSibling;
+            let id = parseInt(teamInput.getAttribute('id').split('_')[2]);
+            let option = document.createElement('option');
+            option.text = document.getElementById('team_'+ id +'_name').value;
+            option.value = id;
+            let select = document.getElementById('additional_teams');
+            select.add(option);
+            event.target.parentElement.remove();
+            sortSelect(select);
+        }
+        function addTeam(event) {
+            let select = document.getElementById('additional_teams');
+            let option = select.options[select.selectedIndex];
+            console.log(option);
+            let inputsParent = document.getElementById('teams');
+            let inputWithName = document.createElement('input');
+            let div = document.createElement('div');
+
+            inputWithName.setAttribute('type', 'text');
+            inputWithName.setAttribute('id', 'team_'+option.value+'_name');
+            inputWithName.setAttribute('value', option.text);
+            inputWithName.setAttribute('disabled', 'disabled');
+
+            let hiddenInput = document.createElement('input');
+
+            hiddenInput .setAttribute('type', 'hidden');
+            hiddenInput .setAttribute('name', 'tournament_teams[]');
+            hiddenInput .setAttribute('id', 'tournament_team_'+option.value);
+            hiddenInput .setAttribute('value', option.value);
+            hiddenInput .setAttribute('readonly', 'readonly');
+
+            let deleteButton = document.createElement('button');
+            deleteButton.setAttribute('type', 'button');
+            deleteButton.innerText = 'Удалить';
+            deleteButton.addEventListener("click", function(event) {
+                deleteTeam(event);
+            });
+
+            div.appendChild(inputWithName);
+            div.appendChild(hiddenInput);
+            div.appendChild(deleteButton);
+            div.appendChild(document.createElement('br'));
+            inputsParent.appendChild(div);
+            option.remove();
+        }
+        function sortSelect(select) {
+            let options = Array.from(select.options);
+            options.sort((a, b) => a.value - b.value);
+            select.innerHTML = '';
+            options.forEach(option => {
+                select.add(option);
+            });
+        }
+    </script>
+{% endblock %}
